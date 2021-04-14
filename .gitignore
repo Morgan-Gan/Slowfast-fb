@@ -1,0 +1,5 @@
+#weights
+checkpoints/checkpoint_epoch_00010.pyth
+*.pyth
+*.pt
+*.pkl
