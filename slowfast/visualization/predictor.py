@@ -46,7 +46,7 @@ class Predictor:
         cu.load_test_checkpoint(cfg, self.model)
         logger.info("Finish loading model weights")
 
-    def __call__(self, task):
+    def __call__(self, task):                                       # __call__：方法把Predictor变成可调用对象，并可传入tast参数
         """
         Returns the prediction results for the current task.
         Args:
@@ -57,10 +57,12 @@ class Predictor:
                 prediction values (a tensor) and the corresponding boxes for
                 action detection task.
         """
+        #* ------ 1. first stage : starting detection ----------------------*/
         if self.cfg.DETECTION.ENABLE:
             task = self.object_detector(task)
 
-        frames, bboxes = task.frames, task.bboxes
+       #* ------ 2. Second stage : starting recognition ----------------------*/
+        frames, bboxes = task.frames, task.bboxes                 
         if bboxes is not None:
             bboxes = cv2_transform.scale_boxes(
                 self.cfg.DATA.TEST_CROP_SIZE,
@@ -77,7 +79,9 @@ class Predictor:
             cv2_transform.scale(self.cfg.DATA.TEST_CROP_SIZE, frame)
             for frame in frames
         ]
+        ## change frames to slowfast inputs
         inputs = process_cv2_inputs(frames, self.cfg)
+        ## add person cls to bbox
         if bboxes is not None:
             index_pad = torch.full(
                 size=(bboxes.shape[0], 1),

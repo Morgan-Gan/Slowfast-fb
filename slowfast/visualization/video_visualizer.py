@@ -425,7 +425,7 @@ class VideoVisualizer:
                 For recognition task, input shape can be (num_classes,). To plot true label (ground_truth is True),
                 preds is a list contains int32 of the shape (num_boxes, true_class_ids) or (true_class_ids,).
             bboxes (Optional[tensor]): shape (num_boxes, 4) that contains the coordinates of the bounding boxes.
-            alpha (Optional[float]): transparency level of the bounding boxes.
+            alpha (Optional[float]): transparency level of the bounding boxes.    transparency -》透明度
             text_alpha (Optional[float]): transparency level of the box wrapped around text labels.
             ground_truth (bool): whether the prodived bounding boxes are ground-truth.
         """

@@ -23,9 +23,10 @@ The goal of PySlowFast is to provide a high-performance, light-weight pytorch co
 - X3D
 
 ## Updates
- - We now support [X3D Models](https://arxiv.org/abs/2004.04730). See [`projects/x3d`](./projects/x3d/README.md) for more information.
- - We now support [Multigrid Training](https://arxiv.org/abs/1912.00998) for efficiently training video models. See [`projects/multigrid`](./projects/multigrid/README.md) for more information.
- - PySlowFast is released in conjunction with our [ICCV 2019 Tutorial](https://alexander-kirillov.github.io/tutorials/visual-recognition-iccv19/).
+
+- We now support [X3D Models](https://arxiv.org/abs/2004.04730). See [`projects/x3d`](./projects/x3d/README.md) for more information.
+- We now support [Multigrid Training](https://arxiv.org/abs/1912.00998) for efficiently training video models. See [`projects/multigrid`](./projects/multigrid/README.md) for more information.
+- PySlowFast is released in conjunction with our [ICCV 2019 Tutorial](https://alexander-kirillov.github.io/tutorials/visual-recognition-iccv19/).
 
 ## License
 
@@ -49,10 +50,13 @@ We offer a range of visualization tools for the train/eval/test processes, model
 More information at [Visualization Tools](VISUALIZATION_TOOLS.md).
 
 ## Contributors
+
 PySlowFast is written and maintained by [Haoqi Fan](https://haoqifan.github.io/), [Yanghao Li](https://lyttonhao.github.io/), [Bo Xiong](https://www.cs.utexas.edu/~bxiong/), [Wan-Yen Lo](https://www.linkedin.com/in/wanyenlo/), [Christoph Feichtenhofer](https://feichtenhofer.github.io/).
 
 ## Citing PySlowFast
+
 If you find PySlowFast useful in your research, please use the following BibTeX entry for citation.
+
 ```BibTeX
 @misc{fan2020pyslowfast,
   author =       {Haoqi Fan and Yanghao Li and Bo Xiong and Wan-Yen Lo and
@@ -62,3 +66,23 @@ If you find PySlowFast useful in your research, please use the following BibTeX 
   year =         {2020}
 }
 ```
+
+## 参数设置：
+
+（1）/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/config/defaults.py
+（2）/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/parser.py
+（3）/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/configs/AVA/c2/SLOWFAST_32x2_R101_50_50_v2.1.yaml
+
+## faster rcnn 检测器
+
+第一个 clip 中间帧第 32 帧做检测，后续每帧都检测
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/detectron2/detectron2/engine/defaults.py
+
+## slowfast 动作识别
+
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/predictor.py
+
+## 视频转图片 buffer--> task
+
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/demo_loader.py
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/utils.py

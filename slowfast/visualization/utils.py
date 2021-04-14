@@ -315,8 +315,8 @@ def process_cv2_inputs(frames, cfg):
     # T H W C -> C T H W.
     inputs = inputs.permute(3, 0, 1, 2)
     # Sample frames for num_frames specified.
-    index = torch.linspace(0, inputs.shape[1] - 1, cfg.DATA.NUM_FRAMES).long()
-    inputs = torch.index_select(inputs, 1, index)
+    index = torch.linspace(0, inputs.shape[1] - 1, cfg.DATA.NUM_FRAMES).long()                       ## [0, 63, 32]从0到63选32个组成等差数列的数
+    inputs = torch.index_select(inputs, 1, index)                                                    ## 参数2按列选取index对应的inputs，
     inputs = pack_pathway_output(cfg, inputs)
     inputs = [inp.unsqueeze(0) for inp in inputs]
     return inputs

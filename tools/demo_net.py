@@ -56,7 +56,7 @@ def run_demo(cfg, frame_provider):
     async_vis = AsyncVis(video_vis, n_workers=cfg.DEMO.NUM_VIS_INSTANCES)
 
     if cfg.NUM_GPUS <= 1:
-        model = ActionPredictor(cfg=cfg, async_vis=async_vis)
+        model = ActionPredictor(cfg=cfg, async_vis=async_vis)                   ## 实例化动作检测类
     else:
         model = AsyncDemo(cfg=cfg, async_vis=async_vis)
 
@@ -75,8 +75,8 @@ def run_demo(cfg, frame_provider):
             time.sleep(0.02)
             continue
         num_task += 1
-
-        model.put(task)
+        ## Start detction and recogintiaon task
+        model.put(task)                                                       
         try:
             task = model.get()
             num_task -= 1

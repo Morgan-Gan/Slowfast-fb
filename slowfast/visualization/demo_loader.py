@@ -64,7 +64,7 @@ class VideoManager:
         self.test_crop_size = cfg.DATA.TEST_CROP_SIZE
         self.clip_vis_size = cfg.DEMO.CLIP_VIS_SIZE
 
-    def __iter__(self):
+    def __iter__(self):                                       # __iter__支持迭代的集合对象
         return self
 
     def __next__(self):
@@ -92,7 +92,7 @@ class VideoManager:
         if was_read and self.buffer_size != 0:
             self.buffer = frames[-self.buffer_size :]
 
-        task.add_frames(self.id, frames)
+        task.add_frames(self.id, frames)                            # Add the clip and corresponding id
         task.num_buffer_frames = 0 if self.id == 0 else self.buffer_size
 
         return was_read, task
