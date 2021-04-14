@@ -11,7 +11,8 @@ from train_net import train
 from visualization import visualize
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ['DISPLAY'] = 'localhost:32.0'
 
 def main():
     """
