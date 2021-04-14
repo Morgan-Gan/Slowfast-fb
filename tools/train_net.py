@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
 
 """Train a video classification model."""
 
@@ -69,7 +68,35 @@ def train_epoch(
         train_meter.data_toc()
 
         if cfg.DETECTION.ENABLE:
-            preds = model(inputs, meta["boxes"])
+            preds = model(inputs, meta["boxes"])                          ## inputs[4,3,8,224,224], preds[32,2048,7,7]
+            # #################################################################################################################################
+            # import os
+            # weights = 'checkpoints/checkpoint_epoch_00007.pyth'
+            # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+            # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            # chkpt = torch.load(weights, map_location=device)
+            
+            # try:
+            #     model_dict = model.module.state_dict()
+            # except AttributeError:
+            #     model_dict = model.state_dict()  # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
+            #     # 将pretrained_dict里不属于model_dict的键剔除掉
+            #     chkpt = {k: v for k, v in chkpt.items() if k in model_dict}
+            # print("load pretrain model")
+            # model_dict.update(chkpt)
+            # model.load_state_dict(model_dict)
+            
+            # model.to(device)
+            # # inputs = [inputs.to(device)]           
+            # model.eval()
+            # input_tensor = (inputs, meta["boxes"].to(device))
+            # traced_script_module = torch.jit.trace(model, input_tensor)
+            # traced_script_module.save("weights/sf_pytorch.pt")
+            # print("************************* out put save **********************************")
+            # exit(0)
+
+
+##############################################################################################
         else:
             preds = model(inputs)
         # Explicitly declare reduction to mean.
@@ -496,3 +523,60 @@ def train(cfg):
 
     if writer is not None:
         writer.close()
+
+
+
+############################################# pytorch model export #####################################################
+import os
+from slowfast.utils.parser import load_config, parse_args        #, assert_and_infer_cfg --> config.defaults.py
+
+def export_pytorch_model():
+    weights = 'checkpoints/checkpoint_epoch_00018.pyth'
+    args = parse_args()
+    cfg = load_config(args)
+
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
+
+    model = build_model(cfg).to(device)
+
+    # chkpt = torch.load(weights, map_location="cpu")
+    chkpt = torch.load(weights, map_location=device)
+
+
+    try:
+        model_dict=model.module.state_dict()
+    except AttributeError:
+        model_dict = model.state_dict()  # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
+    # 将pretrained_dict里不属于model_dict的键剔除掉
+        chkpt = {k: v for k, v in chkpt.items() if k in model_dict}
+    print("load pretrain model")
+    model_dict.update(chkpt)
+    # model.state_dict(model_dict)
+    model.load_state_dict(model_dict)
+
+    # z转换为评估模型
+    model.eval()
+    e1 = torch.rand(1, 3, 8, 224, 224).cuda()
+    e2 = torch.rand(1, 3, 32, 224, 224).cuda()
+    e3 = [e1, e2]
+    e4 = torch.rand(1, 5).cuda()                                                            ## cuda()
+
+    traced_script_module = torch.jit.trace(model,(e3, e4))
+
+    traced_script_module.save("weights/sf18_pytorch_gpu.pt")
+    print("out put save")
+
+def load():
+    a = torch.jit.load("weights/sf18_pytorch_cpu.pt")
+    print("Load done !")
+
+############################################# end #####################################################
+
+if __name__ == '__main__':
+    def main():
+        export_pytorch_model()
+        load()
+
+    main()
