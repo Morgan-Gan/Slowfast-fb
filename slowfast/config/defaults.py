@@ -43,7 +43,7 @@ _C.BN.NUM_SYNC_DEVICES = 1
 _C.TRAIN = CfgNode()
 
 # If True Train the model, else skip training.
-_C.TRAIN.ENABLE = False                                                                            ## True
+_C.TRAIN.ENABLE = False  # True
 
 # Dataset.
 _C.TRAIN.DATASET = "kinetics"
@@ -90,7 +90,8 @@ _C.TEST.DATASET = "kinetics"
 _C.TEST.BATCH_SIZE = 8
 
 # Path to the checkpoint to load the initial weight.
-_C.TEST.CHECKPOINT_FILE_PATH = "weights/SLOWFAST_32x2_R101_50_50_v2.1.pkl"
+# "weights/SLOWFAST_32x2_R101_50_50_v2.1.pkl"
+_C.TEST.CHECKPOINT_FILE_PATH = "/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/checkpoints/checkpoint_epoch_00018.pyth"
 
 # Number of clips to sample from a video uniformly for aggregating the
 # prediction results.
@@ -101,7 +102,7 @@ _C.TEST.NUM_ENSEMBLE_VIEWS = 10
 _C.TEST.NUM_SPATIAL_CROPS = 3
 
 # Checkpoint types include `caffe2` or `pytorch`.
-_C.TEST.CHECKPOINT_TYPE = "caffe2"                         ## pytorch
+_C.TEST.CHECKPOINT_TYPE = "pytorch"  # pytorch,caffe2
 # Path to saving prediction results file.
 _C.TEST.SAVE_RESULTS_PATH = ""
 # -----------------------------------------------------------------------------
@@ -324,7 +325,7 @@ _C.DATA.REVERSE_INPUT_CHANNEL = False
 _C.SOLVER = CfgNode()
 
 # Base learning rate.
-_C.SOLVER.BASE_LR = 0.05                                                                #  0.1->16
+_C.SOLVER.BASE_LR = 0.05  # 0.1->16
 
 # Learning rate policy (see utils/lr_policy.py for options and examples).
 _C.SOLVER.LR_POLICY = "cosine"
@@ -463,13 +464,13 @@ _C.AVA.FRAME_DIR = "/home/window_share/home/os/window_share/common3/dataset/ava/
 
 # Directory path for files of frame lists.
 _C.AVA.FRAME_LIST_DIR = (
-    ## "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
+    # "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
     "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/labels_fb/frame_lists"
 )
 
 # Directory path for annotation files.
 _C.AVA.ANNOTATION_DIR = (
-    ## "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
+    # "/mnt/vol/gfsai-flash3-east/ai-group/users/haoqifan/ava/frame_list/"
     "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/labels_fb/frame_lists"
 )
 
@@ -682,7 +683,7 @@ _C.TENSORBOARD.WRONG_PRED_VIS.SUBSET_PATH = ""
 _C.DEMO = CfgNode()
 
 # Run model in DEMO mode.
-_C.DEMO.ENABLE = True                                                           ## False
+_C.DEMO.ENABLE = True  # False
 
 # Path to a json file providing class_name - id mapping
 # in the format {"class_name1": id1, "class_name2": id2, ...}.
@@ -694,7 +695,7 @@ _C.DEMO.LABEL_FILE_PATH = "/home/window_share/home/os/window_share/common3/datas
 _C.DEMO.WEBCAM = -1
 
 # Path to input video for demo.
-_C.DEMO.INPUT_VIDEO = "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/video/test_data/falldown_video.mp4"
+_C.DEMO.INPUT_VIDEO = "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/video/test_data/v_BrushingTeeth_g23_c04.avi"  # persondog1.mp4"
 # Custom width for reading input video data.
 _C.DEMO.DISPLAY_WIDTH = 0
 # Custom height for reading input video data.
@@ -713,14 +714,14 @@ _C.DEMO.DETECTRON2_THRESH = 0.9
 _C.DEMO.BUFFER_SIZE = 0
 # If specified, the visualized outputs will be written this a video file of
 # this path. Otherwise, the visualized outputs will be displayed in a window.
-_C.DEMO.OUTPUT_FILE = "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/video/test_data_output/falldown_output.mp4"
+_C.DEMO.OUTPUT_FILE = "/home/window_share/home/os/window_share/common3/dataset/ava/AVA_dataset/video/test_data_output/output_v_BrushingTeeth_g23_c04.avi"  # output_persondog1.mp4"
 # Frames per second rate for writing to output video file.
 # If not set (-1), use fps rate from input file.
 _C.DEMO.OUTPUT_FPS = -1
 # Input format from demo video reader ("RGB" or "BGR").
 _C.DEMO.INPUT_FORMAT = "BGR"
 # Draw visualization frames in [keyframe_idx - CLIP_VIS_SIZE, keyframe_idx + CLIP_VIS_SIZE] inclusively.
-_C.DEMO.CLIP_VIS_SIZE = 10
+_C.DEMO.CLIP_VIS_SIZE = 20  # 10
 # Number of processes to run video visualizer.
 _C.DEMO.NUM_VIS_INSTANCES = 2
 
@@ -742,7 +743,7 @@ _C.DEMO.STARTING_SECOND = 900
 _C.DEMO.FPS = 30
 # Visualize with top-k predictions or predictions above certain threshold(s).
 # Option: {"thres", "top-k"}
-_C.DEMO.VIS_MODE = "thres"
+_C.DEMO.VIS_MODE = "thres"  # "thres"
 # Threshold for common class names.
 _C.DEMO.COMMON_CLASS_THRES = 0.7
 # Theshold for uncommon class names. This will not be

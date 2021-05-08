@@ -46,7 +46,8 @@ class Predictor:
         cu.load_test_checkpoint(cfg, self.model)
         logger.info("Finish loading model weights")
 
-    def __call__(self, task):                                       # __call__：方法把Predictor变成可调用对象，并可传入tast参数
+    # __call__：方法把Predictor变成可调用对象，并可传入tast参数
+    def __call__(self, task):
         """
         Returns the prediction results for the current task.
         Args:
@@ -57,12 +58,13 @@ class Predictor:
                 prediction values (a tensor) and the corresponding boxes for
                 action detection task.
         """
-        #* ------ 1. first stage : starting detection ----------------------*/
+        # * ------ 1. first stage : starting detection ----------------------*/
         if self.cfg.DETECTION.ENABLE:
             task = self.object_detector(task)
 
-       #* ------ 2. Second stage : starting recognition ----------------------*/
-        frames, bboxes = task.frames, task.bboxes                 
+       # * ------ 2. Second stage : starting recognition ----------------------*/
+        frames, bboxes = task.frames, task.bboxes
+
         if bboxes is not None:
             bboxes = cv2_transform.scale_boxes(
                 self.cfg.DATA.TEST_CROP_SIZE,
@@ -79,9 +81,13 @@ class Predictor:
             cv2_transform.scale(self.cfg.DATA.TEST_CROP_SIZE, frame)
             for frame in frames
         ]
-        ## change frames to slowfast inputs
+        ################################################################################################################
+        save_frames = frames[5]
+        cv2.imwrite("save_frames.jpg", save_frames)
+        ###############################################################################################################
+        # change frames to slowfast inputs
         inputs = process_cv2_inputs(frames, self.cfg)
-        ## add person cls to bbox
+        # add person cls to bbox
         if bboxes is not None:
             index_pad = torch.full(
                 size=(bboxes.shape[0], 1),
@@ -105,6 +111,21 @@ class Predictor:
         if self.cfg.DETECTION.ENABLE and not bboxes.shape[0]:
             preds = torch.tensor([])
         else:
+            # change    {1,3,8,224,224]->[8,3,224,224]
+            # bboxes = bboxes.unsqueeze(0).unsqueeze(0)
+            # inputs[0] = inputs[0].squeeze(0).permute(1, 0, 2, 3)
+            # inputs[1] = inputs[1].squeeze(0).permute(1, 0, 2, 3)
+            ##########################################################
+            import numpy as np
+            import scipy.io as io
+            inputs0 = inputs[0].squeeze(0).permute(
+                1, 0, 2, 3)[0].permute(1, 2, 0).data.cpu().numpy()
+            cv2.imwrite("1.jpg", np.array(inputs0*255, dtype=np.uint8))
+            # numpy.save("input0.npy", inputs0)
+            # result0 = numpy.array(inputs0.reshape(-1, 1))
+            # numpy.savetxt("result0.txt", result0)
+            # io.savemat("save.mat", {"result0": result0})
+            ##########################################################
             preds = self.model(inputs, bboxes)
 
         if self.cfg.NUM_GPUS:
@@ -143,7 +164,8 @@ class ActionPredictor:
             task (TaskInfo object): task object that contain
                 the necessary information for action prediction. (e.g. frames, boxes)
         """
-        task = self.predictor(task)
+        task = self.predictor(
+            task)                           # 返回Predictor中__call__动作检测结果
         self.async_vis.get_indices_ls.append(task.id)
         self.async_vis.put(task)
 

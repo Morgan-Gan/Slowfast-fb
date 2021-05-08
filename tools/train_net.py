@@ -2,6 +2,9 @@
 
 """Train a video classification model."""
 
+# , assert_and_infer_cfg --> config.defaults.py
+from slowfast.utils.parser import load_config, parse_args
+import os
 import numpy as np
 import pprint
 import torch
@@ -68,14 +71,15 @@ def train_epoch(
         train_meter.data_toc()
 
         if cfg.DETECTION.ENABLE:
-            preds = model(inputs, meta["boxes"])                          ## inputs[4,3,8,224,224], preds[32,2048,7,7]
+            # inputs[4,3,8,224,224], preds[32,2048,7,7]
+            preds = model(inputs, meta["boxes"])
             # #################################################################################################################################
             # import os
             # weights = 'checkpoints/checkpoint_epoch_00007.pyth'
             # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
             # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             # chkpt = torch.load(weights, map_location=device)
-            
+
             # try:
             #     model_dict = model.module.state_dict()
             # except AttributeError:
@@ -85,9 +89,9 @@ def train_epoch(
             # print("load pretrain model")
             # model_dict.update(chkpt)
             # model.load_state_dict(model_dict)
-            
+
             # model.to(device)
-            # # inputs = [inputs.to(device)]           
+            # # inputs = [inputs.to(device)]
             # model.eval()
             # input_tensor = (inputs, meta["boxes"].to(device))
             # traced_script_module = torch.jit.trace(model, input_tensor)
@@ -137,7 +141,8 @@ def train_epoch(
                 loss = loss.item()
             else:
                 # Compute the errors.
-                num_topks_correct = metrics.topks_correct(preds, labels, (1, 5))
+                num_topks_correct = metrics.topks_correct(
+                    preds, labels, (1, 5))
                 top1_err, top5_err = [
                     (1.0 - x / preds.size(0)) * 100.0 for x in num_topks_correct
                 ]
@@ -235,7 +240,8 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
 
             if cfg.NUM_GPUS > 1:
                 preds = torch.cat(du.all_gather_unaligned(preds), dim=0)
-                ori_boxes = torch.cat(du.all_gather_unaligned(ori_boxes), dim=0)
+                ori_boxes = torch.cat(
+                    du.all_gather_unaligned(ori_boxes), dim=0)
                 metadata = torch.cat(du.all_gather_unaligned(metadata), dim=0)
 
             val_meter.iter_toc()
@@ -250,7 +256,8 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
                     preds, labels = du.all_gather([preds, labels])
             else:
                 # Compute the errors.
-                num_topks_correct = metrics.topks_correct(preds, labels, (1, 5))
+                num_topks_correct = metrics.topks_correct(
+                    preds, labels, (1, 5))
 
                 # Combine the errors across the GPUs.
                 top1_err, top5_err = [
@@ -516,7 +523,8 @@ def train(cfg):
 
         # Save a checkpoint.
         if is_checkp_epoch:
-            cu.save_checkpoint(cfg.OUTPUT_DIR, model, optimizer, cur_epoch, cfg)
+            cu.save_checkpoint(cfg.OUTPUT_DIR, model,
+                               optimizer, cur_epoch, cfg)
         # Evaluate the model on validation set.
         if is_eval_epoch:
             eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer)
@@ -525,30 +533,28 @@ def train(cfg):
         writer.close()
 
 
-
 ############################################# pytorch model export #####################################################
-import os
-from slowfast.utils.parser import load_config, parse_args        #, assert_and_infer_cfg --> config.defaults.py
+
 
 def export_pytorch_model():
     weights = 'checkpoints/checkpoint_epoch_00018.pyth'
     args = parse_args()
     cfg = load_config(args)
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # device = torch.device("cpu")
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
 
     model = build_model(cfg).to(device)
 
     # chkpt = torch.load(weights, map_location="cpu")
     chkpt = torch.load(weights, map_location=device)
 
-
     try:
-        model_dict=model.module.state_dict()
+        model_dict = model.module.state_dict()
     except AttributeError:
-        model_dict = model.state_dict()  # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
+        # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
+        model_dict = model.state_dict()
     # 将pretrained_dict里不属于model_dict的键剔除掉
         chkpt = {k: v for k, v in chkpt.items() if k in model_dict}
     print("load pretrain model")
@@ -558,21 +564,28 @@ def export_pytorch_model():
 
     # z转换为评估模型
     model.eval()
-    e1 = torch.rand(1, 3, 8, 224, 224).cuda()
-    e2 = torch.rand(1, 3, 32, 224, 224).cuda()
+    # e1 = torch.rand(1, 3, 8, 224, 224).cuda()
+    # e2 = torch.rand(1, 3, 32, 224, 224).cuda()
+    e1 = torch.rand(8, 3,  256, 455).fill_(0)
+    e2 = torch.rand(32, 3, 256, 455).fill_(0)
     e3 = [e1, e2]
-    e4 = torch.rand(1, 5).cuda()                                                            ## cuda()
+    # e4 = torch.rand(1, 5).cuda()
+    # cuda()                                                            ## cuda()
+    e4 = torch.rand(1, 1, 3, 5).fill_(0)
+    print(e4)
 
-    traced_script_module = torch.jit.trace(model,(e3, e4))
+    traced_script_module = torch.jit.trace(model, (e3, e4))
 
-    traced_script_module.save("weights/sf18_pytorch_gpu.pt")
+    traced_script_module.save("weights/sf18_pytorch_cpu210.pt")
     print("out put save")
 
+
 def load():
-    a = torch.jit.load("weights/sf18_pytorch_cpu.pt")
+    a = torch.jit.load("weights/sf18_pytorch_cpu210.pt")
     print("Load done !")
 
 ############################################# end #####################################################
+
 
 if __name__ == '__main__':
     def main():

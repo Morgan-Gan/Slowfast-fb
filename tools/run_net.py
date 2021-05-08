@@ -3,7 +3,8 @@
 
 """Wrapper to train and test a video classification model."""
 from slowfast.utils.misc import launch_job
-from slowfast.utils.parser import load_config, parse_args        #, assert_and_infer_cfg --> config.defaults.py
+# , assert_and_infer_cfg --> config.defaults.py
+from slowfast.utils.parser import load_config, parse_args
 
 from demo_net import demo
 from test_net import test
@@ -11,8 +12,9 @@ from train_net import train
 from visualization import visualize
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 os.environ['DISPLAY'] = 'localhost:32.0'
+
 
 def main():
     """

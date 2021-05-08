@@ -188,6 +188,7 @@ class AsyncVis:
                 the necessary information for action prediction. (e.g. frames, boxes, predictions)
         """
         self.put_id += 1
+        # 队列queue.put()入队阻塞；出队(get)时的阻塞、整体(join)的阻塞(消费的阻塞)
         self.task_queue.put(task)
 
     def get(self):
@@ -300,7 +301,7 @@ def draw_predictions(task, video_vis):
         keyframe_idx + task.clip_vis_size,
     ]
     buffer = frames[: task.num_buffer_frames]
-    frames = frames[task.num_buffer_frames :]
+    frames = frames[task.num_buffer_frames:]
     if boxes is not None:
         if len(boxes) != 0:
             frames = video_vis.draw_clip_range(

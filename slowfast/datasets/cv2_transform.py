@@ -100,6 +100,10 @@ def scale(size, image):
     img = cv2.resize(
         image, (new_width, new_height), interpolation=cv2.INTER_LINEAR
     )
+    cv2.imwrite("resize.jpg", img)
+    cv2.imwrite("resize_rgb.jpg", cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    cv2.imwrite("resize_bgr.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+
     return img.astype(np.float32)
 
 
@@ -200,7 +204,7 @@ def spatial_shift_crop_list(size, images, spatial_shift_pos, boxes=None):
             x_offset = width - size
 
     cropped = [
-        image[y_offset : y_offset + size, x_offset : x_offset + size, :]
+        image[y_offset: y_offset + size, x_offset: x_offset + size, :]
         for image in images
     ]
     assert cropped[0].shape[0] == size, "Image height not cropped properly"
@@ -309,7 +313,8 @@ def color_normalization(image, mean, stddev):
     """
     # Input image should in format of CHW
     assert len(mean) == image.shape[0], "channel mean not computed properly"
-    assert len(stddev) == image.shape[0], "channel stddev not computed properly"
+    assert len(
+        stddev) == image.shape[0], "channel stddev not computed properly"
     for idx in range(image.shape[0]):
         image[idx] = image[idx] - mean[idx]
         image[idx] = image[idx] / stddev[idx]
@@ -427,7 +432,7 @@ def random_crop_list(images, size, pad_size=0, order="CHW", boxes=None):
         if width > size:
             x_offset = int(np.random.randint(0, width - size))
         cropped = [
-            image[:, y_offset : y_offset + size, x_offset : x_offset + size]
+            image[:, y_offset: y_offset + size, x_offset: x_offset + size]
             for image in images
         ]
         assert cropped[0].shape[1] == size, "Image not cropped properly"
@@ -444,14 +449,15 @@ def random_crop_list(images, size, pad_size=0, order="CHW", boxes=None):
         if width > size:
             x_offset = int(np.random.randint(0, width - size))
         cropped = [
-            image[y_offset : y_offset + size, x_offset : x_offset + size, :]
+            image[y_offset: y_offset + size, x_offset: x_offset + size, :]
             for image in images
         ]
         assert cropped[0].shape[0] == size, "Image not cropped properly"
         assert cropped[0].shape[1] == size, "Image not cropped properly"
 
     if boxes is not None:
-        boxes = [crop_boxes(proposal, x_offset, y_offset) for proposal in boxes]
+        boxes = [crop_boxes(proposal, x_offset, y_offset)
+                 for proposal in boxes]
     return cropped, boxes
 
 
@@ -466,7 +472,7 @@ def center_crop(size, image):
     width = image.shape[1]
     y_offset = int(math.ceil((height - size) / 2))
     x_offset = int(math.ceil((width - size) / 2))
-    cropped = image[y_offset : y_offset + size, x_offset : x_offset + size, :]
+    cropped = image[y_offset: y_offset + size, x_offset: x_offset + size, :]
     assert cropped.shape[0] == size, "Image height not cropped properly"
     assert cropped.shape[1] == size, "Image width not cropped properly"
     return cropped
@@ -542,7 +548,7 @@ def random_sized_crop(image, size, area_frac=0.08):
                 x_offset = np.random.randint(0, width - w)
             y_offset = int(y_offset)
             x_offset = int(x_offset)
-            cropped = image[y_offset : y_offset + h, x_offset : x_offset + w, :]
+            cropped = image[y_offset: y_offset + h, x_offset: x_offset + w, :]
             assert (
                 cropped.shape[0] == h and cropped.shape[1] == w
             ), "Wrong crop size"
@@ -615,7 +621,7 @@ def random_sized_crop_list(images, size, crop_area_fraction=0.08):
             croppsed_images = []
             for image in images:
                 cropped = image[
-                    y_offset : y_offset + h, x_offset : x_offset + w, :
+                    y_offset: y_offset + h, x_offset: x_offset + w, :
                 ]
                 assert (
                     cropped.shape[0] == h and cropped.shape[1] == w

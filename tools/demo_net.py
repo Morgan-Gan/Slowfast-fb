@@ -41,7 +41,7 @@ def run_demo(cfg, frame_provider):
         if len(cfg.DEMO.LABEL_FILE_PATH) != 0
         else None
     )
-
+    ## draw box
     video_vis = VideoVisualizer(
         num_classes=cfg.MODEL.NUM_CLASSES,
         class_names_path=cfg.DEMO.LABEL_FILE_PATH,

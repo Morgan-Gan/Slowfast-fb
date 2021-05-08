@@ -73,6 +73,8 @@ If you find PySlowFast useful in your research, please use the following BibTeX 
 （2）/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/parser.py
 （3）/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/configs/AVA/c2/SLOWFAST_32x2_R101_50_50_v2.1.yaml
 
+标签处理：/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py ---》get_class_names
+
 ## faster rcnn 检测器
 
 第一个 clip 中间帧第 32 帧做检测，后续每帧都检测
@@ -86,3 +88,12 @@ If you find PySlowFast useful in your research, please use the following BibTeX 
 
 /home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/demo_loader.py
 /home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/utils.py
+
+## trace 模型打开：
+
+（1）/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/models/video_model_builder.py
+（2）/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/predictor.py
+
+# 测试数据画框打开：
+
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/async_predictor.py

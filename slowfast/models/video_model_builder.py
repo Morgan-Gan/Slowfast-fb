@@ -193,7 +193,8 @@ class SlowFast(nn.Module):
 
         self.s1 = stem_helper.VideoModelStem(
             dim_in=cfg.DATA.INPUT_CHANNEL_NUM,
-            dim_out=[width_per_group, width_per_group // cfg.SLOWFAST.BETA_INV],
+            dim_out=[width_per_group, width_per_group //
+                     cfg.SLOWFAST.BETA_INV],
             kernel=[temp_kernel[0][0] + [7, 7], temp_kernel[0][1] + [7, 7]],
             stride=[[1, 2, 2]] * 2,
             padding=[
@@ -386,6 +387,10 @@ class SlowFast(nn.Module):
             )
 
     def forward(self, x, bboxes=None):
+      #  # change [8,3,224,224]  -> {1,3,8,224,224]
+        # x[0] = x[0].unsqueeze(0).permute(0, 2, 1, 3, 4)
+        # x[1] = x[1].unsqueeze(0).permute(0, 2, 1, 3, 4)
+
         x = self.s1(x)
         x = self.s1_fuse(x)
         x = self.s2(x)
@@ -399,6 +404,7 @@ class SlowFast(nn.Module):
         x = self.s4_fuse(x)
         x = self.s5(x)
         if self.enable_detection:
+            # bboxes = bboxes.squeeze(0).squeeze(0)  # change[1,1,3,5] -->[3,5]
             x = self.head(x, bboxes)
         else:
             x = self.head(x)
