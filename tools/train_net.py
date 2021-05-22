@@ -70,8 +70,22 @@ def train_epoch(
 
         train_meter.data_toc()
 
+        # _________________________ save model test __________________________________________
+        if cur_iter % 100 == 1:
+            cu.save_checkpoint(cfg.OUTPUT_DIR, model,
+                               optimizer, cur_iter, cfg)  # cur_epoch
+            print("----------------------- save done ")
+            # exit(0)
+            # _________________________________________________________________________________________
+
         if cfg.DETECTION.ENABLE:
             # inputs[4,3,8,224,224], preds[32,2048,7,7]
+            # change {1,3,8,224,224]  ->  [8,3,224,224]
+            ##################################################################################
+            inputs0 = inputs[0].squeeze(0).permute(1, 0, 2, 3)
+            inputs1 = inputs[1].squeeze(0).permute(1, 0, 2, 3)
+            meta["boxes"] = meta["boxes"].unsqueeze(0).unsqueeze(0)
+            inputs = [inputs0, inputs1]
             preds = model(inputs, meta["boxes"])
             # #################################################################################################################################
             # import os
@@ -481,6 +495,12 @@ def train(cfg):
 
         # Train for one epoch.
         epoch_timer.epoch_tic()
+        # # _________________________ save model test __________________________________________
+        # cu.save_checkpoint(cfg.OUTPUT_DIR, model,
+        #                    optimizer, cur_epoch, cfg)
+        # print("----------------------- save done ")
+        # exit(0)
+        # # _________________________________________________________________________________________
         train_epoch(
             train_loader, model, optimizer, train_meter, cur_epoch, cfg, writer
         )
@@ -537,7 +557,7 @@ def train(cfg):
 
 
 def export_pytorch_model():
-    weights = 'checkpoints/checkpoint_epoch_00018.pyth'
+    weights = 'checkpoints/checkpoint_epoch_00028.pyth'
     args = parse_args()
     cfg = load_config(args)
 
@@ -550,38 +570,56 @@ def export_pytorch_model():
     # chkpt = torch.load(weights, map_location="cpu")
     chkpt = torch.load(weights, map_location=device)
 
-    try:
-        model_dict = model.module.state_dict()
-    except AttributeError:
-        # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
-        model_dict = model.state_dict()
-    # 将pretrained_dict里不属于model_dict的键剔除掉
-        chkpt = {k: v for k, v in chkpt.items() if k in model_dict}
-    print("load pretrain model")
-    model_dict.update(chkpt)
-    # model.state_dict(model_dict)
-    model.load_state_dict(model_dict)
+    model.load_state_dict(chkpt['model_state'])
+
+    # try:
+    #     model_dict = model.module.state_dict()
+    # except AttributeError:
+    #     # 读取原始状态及参数，                                         ## 多GPU训练，导致训练存储的模型时key会加上model
+    #     model_dict = model.state_dict()
+    # # 将pretrained_dict里不属于model_dict的键剔除掉
+    #     chkpt = {k: v for k, v in chkpt.items() if k in model_dict}
+    # print("load pretrain model")
+    # model_dict.update(chkpt)
+    # # model.state_dict(model_dict)
+    # model.load_state_dict(model_dict)
 
     # z转换为评估模型
     model.eval()
     # e1 = torch.rand(1, 3, 8, 224, 224).cuda()
     # e2 = torch.rand(1, 3, 32, 224, 224).cuda()
-    e1 = torch.rand(8, 3,  256, 455).fill_(0)
-    e2 = torch.rand(32, 3, 256, 455).fill_(0)
+    e1 = torch.rand(8, 3,  256, 455)  # .fill_(0)
+    e2 = torch.rand(32, 3, 256, 455)  # .fill_(0)
     e3 = [e1, e2]
     # e4 = torch.rand(1, 5).cuda()
-    # cuda()                                                            ## cuda()
-    e4 = torch.rand(1, 1, 3, 5).fill_(0)
-    print(e4)
+    # cuda()
+    e4 = torch.rand(1, 1, 1, 5)  # .fill_(0)   rand(1, 1, 3, 5)
 
-    traced_script_module = torch.jit.trace(model, (e3, e4))
+    import numpy
+    import numpy as np
+    numpy.save("input00.npy", e3[0].numpy())
+    numpy.save("input11.npy", e3[1].numpy())
+    numpy.save("input22.npy", e4.numpy())
+    input0 = torch.from_numpy(np.load("input0.npy"))
+    input1 = torch.from_numpy(np.load("input1.npy"))
+    input2 = torch.from_numpy(np.load("input2.npy"))
 
-    traced_script_module.save("weights/sf18_pytorch_cpu210.pt")
+    pred = model(e3, e4)
+    print(pred)
+    # exit(0)
+    input3 = [input0, input1]
+
+    # traced_script_module = torch.jit.trace(model, (e3, e4))
+    traced_script_module = torch.jit.trace(model, (input3, input2))
+    # print(traced_script_module.graph)
+    print(traced_script_module(input3, input2))  # .forward
+
+    traced_script_module.save("weights/sf18_pytorch_cpu4503.pt")
     print("out put save")
 
 
 def load():
-    a = torch.jit.load("weights/sf18_pytorch_cpu210.pt")
+    a = torch.jit.load("weights/sf18_pytorch_cpu4503.pt")
     print("Load done !")
 
 ############################################# end #####################################################
