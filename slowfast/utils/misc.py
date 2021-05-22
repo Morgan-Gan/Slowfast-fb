@@ -149,6 +149,14 @@ def get_model_stats(model, cfg, mode, use_train_input):
     model_mode = model.training
     model.eval()
     inputs = _get_model_analysis_input(cfg, use_train_input)
+    # change {1,3,8,224,224]  ->  [8,3,224,224]
+    ##################################################################################
+    inputs0 = inputs[0][0].squeeze(0).permute(1, 0, 2, 3)
+    inputs1 = inputs[0][1].squeeze(0).permute(1, 0, 2, 3)
+    inputs2 = inputs[1].unsqueeze(0).unsqueeze(0)
+    inputs = ([inputs0, inputs1], inputs2)
+
+    ###################################################################################
     count_dict, *_ = model_stats_fun(model, inputs)
     count = sum(count_dict.values())
     model.train(model_mode)
