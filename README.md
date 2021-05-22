@@ -97,3 +97,11 @@ If you find PySlowFast useful in your research, please use the following BibTeX 
 # 测试数据画框打开：
 
 /home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/async_predictor.py
+框颜色：/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/visualization/video_visualizer.py
+
+#测试 demo
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/config/defaults.py
+
+# train 5->4
+
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py

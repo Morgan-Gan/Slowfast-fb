@@ -101,10 +101,22 @@ def scale(size, image):
         image, (new_width, new_height), interpolation=cv2.INTER_LINEAR
     )
     cv2.imwrite("resize.jpg", img)
-    cv2.imwrite("resize_rgb.jpg", cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    cv2.imwrite("resize_bgr.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    # cv2.imwrite("resize_rgb.jpg", cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # cv2.imwrite("resize_bgr.jpg", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     return img.astype(np.float32)
+
+######################################################## test ######################################################
+
+
+def lineSpace(x1, x2, n, vecBuf_in, vecBuf_out):
+    d = (x2 - x1) // (n-1)
+    print("------------{}".format(d))
+    for i in range(n):
+        vecBuf_out.append(vecBuf_in[x1 + i*d])
+        imgsf = "input/" + str(x1 + i*d) + ".jpg"
+        cv2.imwrite(imgsf, vecBuf_in[x1 + i*d])
+######################################################## test end######################################################
 
 
 def scale_boxes(size, boxes, height, width):
