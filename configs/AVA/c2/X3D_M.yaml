@@ -1,0 +1,82 @@
+TRAIN:
+  ENABLE: True
+  DATASET: ava 
+  BATCH_SIZE: 16                 ##64
+  EVAL_PERIOD: 1
+  CHECKPOINT_PERIOD: 1
+  AUTO_RESUME: True
+DATA:
+  NUM_FRAMES: 16
+  SAMPLING_RATE: 5
+  TRAIN_JITTER_SCALES: [256, 320]
+  TRAIN_CROP_SIZE: 224 
+  TEST_CROP_SIZE: 224 # use if TEST.NUM_SPATIAL_CROPS: 1
+  #TEST_CROP_SIZE: 256 # use if TEST.NUM_SPATIAL_CROPS: 3
+  INPUT_CHANNEL_NUM: [3] 
+  DECODING_BACKEND: torchvision
+DETECTION:
+  ENABLE: True
+  ALIGNED: True
+AVA:
+  BGR: False
+  DETECTION_SCORE_THRESH: 0.8
+  TEST_PREDICT_BOX_LISTS:
+    ['person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv']
+  TRAIN_GT_BOX_LISTS: ['ava_train_v2.2.csv'] # "ava_train_v2.1.csv"
+  LABEL_MAP_FILE: ava_action_list_v2.2_for_activitynet_2019.pbtxt # ava_action_list_v2.1_for_activitynet_2018.pbtxt
+  EXCLUSION_FILE: ava_val_excluded_timestamps_v2.2.csv # ava_val_excluded_timestamps_v2.1.csv
+  GROUNDTRUTH_FILE: ava_val_v2.2.csv # ava_val_v2.1.csv
+  # TRAIN_PREDICT_BOX_LISTS: [
+  #   "ava_train_v2.2.csv",
+  #   "person_box_67091280_iou90/ava_detection_train_boxes_and_labels_include_negative_v2.2.csv",
+  # ]
+  # TEST_PREDICT_BOX_LISTS: ["person_box_67091280_iou90/ava_detection_val_boxes_and_labels.csv"]
+  # FRAME_DIR: "/path/to/data/AVA/frames/"
+  # FRAME_LIST_DIR: "/path/to/data/AVA/frame_lists/"
+  # ANNOTATION_DIR: "/path/to/data/AVA/annotations/"
+X3D:
+  WIDTH_FACTOR: 2.0 
+  DEPTH_FACTOR: 2.2 
+  BOTTLENECK_FACTOR: 2.25
+  DIM_C5: 2048
+  DIM_C1: 12
+RESNET:
+  ZERO_INIT_FINAL_BN: True
+  TRANS_FUNC: x3d_transform
+  STRIDE_1X1: False
+BN:
+  USE_PRECISE_STATS: False #True on Kinetics
+  NUM_BATCHES_PRECISE: 200 
+  WEIGHT_DECAY: 0.0 
+SOLVER:
+  BASE_LR: 0.1 # 16 machine
+  BASE_LR_SCALE_NUM_SHARDS: True
+  LR_POLICY: steps_with_relative_lrs
+  STEPS: [0, 10, 15, 20] 
+  LRS: [1, 0.1, 0.01, 0.001]
+  MAX_EPOCH: 20
+  WEIGHT_DECAY: 1e-7
+  WARMUP_EPOCHS: 5.0
+  WARMUP_START_LR: 0.000125
+  OPTIMIZING_METHOD: sgd
+MODEL:
+  NUM_CLASSES: 80
+  ARCH: x3d
+  MODEL_NAME: X3D
+  LOSS_FUNC: bce # cross_entropy
+  DROPOUT_RATE: 0.5
+  HEAD_ACT: sigmoid
+TEST:
+  ENABLE: True
+  DATASET: ava
+  BATCH_SIZE: 8
+  # CHECKPOINT_FILE_PATH: 'x3d_s.pyth' # 73.50% top1 30-view accuracy to download from the model zoo (optional).
+  NUM_SPATIAL_CROPS: 1
+  #NUM_SPATIAL_CROPS: 3
+DATA_LOADER:
+  NUM_WORKERS: 8
+  PIN_MEMORY: True
+NUM_GPUS: 1
+NUM_SHARDS: 1
+RNG_SEED: 0
+OUTPUT_DIR: .

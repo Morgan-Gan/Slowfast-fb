@@ -104,4 +104,32 @@ If you find PySlowFast useful in your research, please use the following BibTeX 
 
 # train 5->4
 
-/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py
+/home/window_share/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py 153-157
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/models/video_model_builder.py 391-392
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/tools/train_net.py   85-88
+
+训练数据加载：
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/datasets/ava_helper.py
+
+# slowfast  train:
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/tools/train_net.py
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py
+
+# X3D:
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/config/defaults.py  449       --->    _C.DETECTION.SPATIAL_SCALE_FACTOR = 32    ## 16-->slowfast,32-->X3D
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/utils/misc.py       154
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/tools/train_net.py        84
+/home/os/window_share/ganhaiyang/Alg_Proj/Recog_Proj/SlowFast/slowfast/models/video_model_builder.py  748->789
+
+slowfast:
+  (head): ResNetRoIHead(
+    (s0_tpool): AvgPool3d(kernel_size=[8, 1, 1], stride=1, padding=0)
+    (s0_roi): ROIAlign(output_size=[7, 7], spatial_scale=0.0625, sampling_ratio=0, aligned=True)
+    (s0_spool): MaxPool2d(kernel_size=[7, 7], stride=1, padding=0, dilation=1, ceil_mode=False)
+    (s1_tpool): AvgPool3d(kernel_size=[32, 1, 1], stride=1, padding=0)
+    (s1_roi): ROIAlign(output_size=[7, 7], spatial_scale=0.0625, sampling_ratio=0, aligned=True)
+    (s1_spool): MaxPool2d(kernel_size=[7, 7], stride=1, padding=0, dilation=1, ceil_mode=False)
+    (dropout): Dropout(p=0.5, inplace=False)
+    (projection): Linear(in_features=2304, out_features=80, bias=True)
+    (act): Sigmoid()
+  )

@@ -339,22 +339,22 @@ class SlowFast(nn.Module):
         if cfg.DETECTION.ENABLE:
             self.head = head_helper.ResNetRoIHead(
                 dim_in=[
-                    width_per_group * 32,
-                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
+                    width_per_group * 32,           # 64
+                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,  # 8
                 ],
                 num_classes=cfg.MODEL.NUM_CLASSES,
-                pool_size=[
+                pool_size=[           #[1,1,1], [1,1,1]
                     [
-                        cfg.DATA.NUM_FRAMES
-                        // cfg.SLOWFAST.ALPHA
-                        // pool_size[0][0],
+                        cfg.DATA.NUM_FRAMES       # 32
+                        // cfg.SLOWFAST.ALPHA    # 4
+                        // pool_size[0][0],      # 1
                         1,
                         1,
                     ],
                     [cfg.DATA.NUM_FRAMES // pool_size[1][0], 1, 1],
                 ],
-                resolution=[[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2] * 2,
-                scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR] * 2,
+                resolution=[[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2] * 2, # 7
+                scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR] * 2,     # 16
                 dropout_rate=cfg.MODEL.DROPOUT_RATE,
                 act_func=cfg.MODEL.HEAD_ACT,
                 aligned=cfg.DETECTION.ALIGNED,
@@ -388,8 +388,8 @@ class SlowFast(nn.Module):
 
     def forward(self, x, bboxes=None):
       #  # change [8,3,224,224]  -> {1,3,8,224,224]
-        # x[0] = x[0].unsqueeze(0).permute(0, 2, 1, 3, 4)
-        # x[1] = x[1].unsqueeze(0).permute(0, 2, 1, 3, 4)
+        x[0] = x[0].unsqueeze(0).permute(0, 2, 1, 3, 4)
+        x[1] = x[1].unsqueeze(0).permute(0, 2, 1, 3, 4)
 
         x = self.s1(x)
         x = self.s1_fuse(x)
@@ -404,7 +404,7 @@ class SlowFast(nn.Module):
         x = self.s4_fuse(x)
         x = self.s5(x)
         if self.enable_detection:
-            # bboxes = bboxes.squeeze(0).squeeze(0)  # change[1,1,3,5] -->[3,5]
+            bboxes = bboxes.squeeze(0).squeeze(0)  # change[1,1,3,5] -->[3,5]
             x = self.head(x, bboxes)
         else:
             x = self.head(x)
@@ -746,7 +746,19 @@ class X3D(nn.Module):
             self.add_module(prefix, s)
 
         if self.enable_detection:
-            NotImplementedError
+            # NotImplementedError
+            self.head = head_helper.ResNetRoIHead(
+                dim_in=[width_per_group * 3],  # width_per_group * 32
+                num_classes=cfg.MODEL.NUM_CLASSES,
+                # pool_size=[[cfg.DATA.NUM_FRAMES // pool_size[0][0], 1, 1]],
+                pool_size=[[16, 1, 1]],
+                resolution=[[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2],
+                # scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR ] ,
+                scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR // 2] ,
+                dropout_rate=cfg.MODEL.DROPOUT_RATE,
+                act_func=cfg.MODEL.HEAD_ACT,
+                aligned=cfg.DETECTION.ALIGNED,
+            )
         else:
             spat_sz = int(math.ceil(cfg.DATA.TRAIN_CROP_SIZE / 32.0))
             self.head = head_helper.X3DHead(
@@ -761,6 +773,16 @@ class X3D(nn.Module):
             )
 
     def forward(self, x, bboxes=None):
-        for module in self.children():
-            x = module(x)
+        if self.enable_detection :
+            for i, module in enumerate(self.children()):
+                # print(i)
+                # print(module)
+                if i == 5 :
+                    x = module(x, bboxes)
+                else:
+                    x = module(x)
+
+        else:
+            for module in self.children():
+                x = module(x)
         return x
